@@ -20,7 +20,7 @@ GEM
     domain_name (0.5.20180417)
       unf (>= 0.0.5, < 1.0.0)
     dotenv (2.5.0)
-    excon (0.62.0)
+    excon (0.71.0)
     faraday (0.15.3)
       multipart-post (>= 1.2, < 3)
     fog-aws (3.3.0)
