@@ -1,3 +1,1 @@
-server 'image1.feedbin.com', user: 'app', roles: %w{image}
-server 'image2.feedbin.com', user: 'app', roles: %w{image}
-server 'image3.feedbin.com', user: 'app', roles: %w{image}
+server '128.199.3.23', user: 'app', roles: %w{image}
