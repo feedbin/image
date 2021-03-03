@@ -7,8 +7,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04]
-        ruby: [2.6, 2.7]
+        os: [ubuntu-20.04, ubuntu-18.04]
+        ruby: [2.7]
 
     runs-on: ${{ matrix.os }}
 
@@ -33,7 +33,7 @@ jobs:
 
     - name: Install system dependencies
       run: sudo apt-get --yes install libvips
-      if: matrix.os == 'ubuntu-18.04'
+      if: matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
 
     - uses: actions/cache@v1
       with:
