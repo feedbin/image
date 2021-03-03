@@ -6,6 +6,11 @@ group :development do
   gem "foreman"
 end
 
+group :test do
+  gem "minitest"
+  gem "webmock"
+end
+
 gem "bundler"
 gem "rake"
 
@@ -17,7 +22,7 @@ gem "nokogumbo"
 gem "redis"
 gem "sidekiq"
 gem "http"
+gem "image_processing"
 gem "down"
-gem "ruby-vips"
 gem "fog-aws"
 gem "mime-types"
