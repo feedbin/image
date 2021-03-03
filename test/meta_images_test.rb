@@ -5,4 +5,10 @@ class PageImagesTest < Minitest::Test
     stub_request_file("html.html", url)
     urls = PageImages.find_urls(url)
   end
+
+  def test_should_not_download_file
+    url = "http://example.com/"
+    stub_request(:get, url).to_return(status: 429)
+    urls = PageImages.find_urls(url)
+  end
 end

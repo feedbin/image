@@ -35,4 +35,4 @@ require "lib/sidekiq"
 require "lib/s3_pool"
 require "lib/helpers"
 
-require "app/page_images"
+require "app/meta_images"

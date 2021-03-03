@@ -13,4 +13,10 @@ class PageImages
     Sidekiq.logger.info "PageImages: exception=#{exception.inspect} url=#{@url}"
     []
   end
+
+  def cached_urls
+
+  end
+
+
 end
