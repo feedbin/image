@@ -2,18 +2,17 @@ $LOAD_PATH.unshift File.expand_path(File.dirname(File.dirname(__FILE__)))
 
 $stdout.sync = true
 
-OPENCV_CLASSIFIER = File.absolute_path("lib/opencv/haarcascade_frontalface_alt.xml")
 
 require "bundler/setup"
 require "dotenv"
 Dotenv.load
-
 require "socket"
 require "etc"
 require "net/http"
 require "securerandom"
 require "time"
 require "uri"
+require "etc"
 
 require "addressable"
 require "dotenv"
@@ -23,9 +22,12 @@ require "librato-rack"
 require "mime-types"
 require "nokogumbo"
 require "redis"
-require "vips"
+require "image_processing"
+require "down"
 require "sidekiq"
 
+require "lib/constants"
+require "lib/down"
 require "lib/redis"
 require "lib/librato"
 require "lib/worker_stat"
