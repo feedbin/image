@@ -5,6 +5,10 @@ class Cache
     new.read(*args)
   end
 
+  def self.read_list(*args)
+    new.read_list(*args)
+  end
+
   def self.delete(*args)
     new.delete(*args)
   end
@@ -19,6 +23,10 @@ class Cache
 
   def self.write(key, value, **args)
     new.write(key, value, **args)
+  end
+
+  def self.write_list(key, value, **args)
+    new.write_list(key, value, **args)
   end
 
   def read(key)
@@ -38,6 +46,25 @@ class Cache
       end
     end
     write_key_expiry(key, options)
+  end
+
+  def write_list(key, values, options: {})
+    values = values.compact
+    unless values.empty?
+      Sidekiq.redis do |redis|
+        redis.pipelined do
+          redis.del(key)
+          redis.lpush(key, values)
+        end
+      end
+    end
+    write_key_expiry(key, options)
+  end
+
+  def read_list(key)
+    Sidekiq.redis do |redis|
+      redis.lrange(key, 0, -1)
+    end
   end
 
   def delete(*keys)

@@ -1,5 +1,9 @@
 require_relative "test_helper"
 class MetaImagesTest < Minitest::Test
+  def setup
+    flush
+  end
+
   def test_should_find_urls
     url = "http://example.com/"
     stub_request_file("html.html", url)
