@@ -27,6 +27,14 @@ class ImageCache
     cache[:processed_url]
   end
 
+  def download?
+    !previously_attempted?
+  end
+
+  def previously_attempted?
+    !cache.empty?
+  end
+
   def save(url)
     @cache = {processed_url: url}
     Cache.write(cache_key, @cache, options: {expires_in: 24 * 60 * 60 * 30})
