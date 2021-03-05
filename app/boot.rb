@@ -13,6 +13,7 @@ require "securerandom"
 require "time"
 require "uri"
 require "etc"
+require "digest"
 
 require "addressable"
 require "dotenv"

@@ -4,35 +4,45 @@ class MetaImagesCache
   end
 
   def urls
-    @urls ||= begin
-      Cache.read_list(urls_cache_key)
+    url_cache[:urls]
+  end
+
+  def checked?
+    !!url_cache[:checked]
+  end
+
+  def has_meta!(result)
+    @host_cache = {has_meta: result}
+    Cache.write(host_cache_key, @host_cache, options: {expires_in: 24 * 60 * 60})
+  end
+
+  def has_meta?
+    host_cache[:has_meta].nil? ? true : host_cache[:has_meta]
+  end
+
+  def save(data)
+    @url_cache = data
+    Cache.write(url_cache_key, data, options: {expires_in: 24 * 60 * 60})
+  end
+
+  def url_cache
+    @url_cache ||= begin
+      Cache.read(url_cache_key)
     end
   end
 
-  def save_urls(urls)
-    Cache.write_list(urls_cache_key, urls)
-  end
-
-  def site_has_meta?
-    true
-  end
-
-  def page_checked?
-
-  end
-
-  def cached
-    @cached ||= begin
-      Cache.read(cache_key)
+  def host_cache
+    @host_cache ||= begin
+      Cache.read(host_cache_key)
     end
   end
 
-  def cache_key
-    "refresher_http_#{@feed_id}"
+  def host_cache_key
+    "image_host_#{Digest::SHA1.hexdigest(@url.host)}"
   end
 
-  def urls_cache_key
-    "refresher_http_#{@feed_id}"
+  def url_cache_key
+    "image_url_#{Digest::SHA1.hexdigest(@url)}"
   end
 
 end

@@ -33,4 +33,24 @@ class MetaImagesTest < Minitest::Test
       MetaImages.new(url).find_urls
     end
   end
+
+  def test_should_determine_download_status
+    url = "http://example.com/"
+    stub_request_file("html.html", url)
+    urls = MetaImages.new(url)
+    assert urls.needs_download?
+    urls.find_urls
+
+    urls = MetaImages.new(url)
+    assert !urls.needs_download?
+  end
+
+  def test_should_not_download_from_site_with_no_meta
+    url = Addressable::URI.parse('http://example.com/article')
+    cache = MetaImagesCache.new(url)
+    cache.has_meta!(false)
+
+    urls = MetaImages.new(url)
+    assert !urls.needs_download?
+  end
 end

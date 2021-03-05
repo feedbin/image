@@ -10,30 +10,36 @@ class MetaImages
   end
 
   def find_urls
-    if !cache.urls.empty?
+    if cache.urls
       cache.urls
-    else
-      download if needs_download?
+    elsif needs_download?
+      download
     end
   end
 
   def download
+    urls = []
     file = Down.download(parsed_url, max_size: 5 * 1024 * 1024)
-    urls = Nokogiri.HTML5(file.read).search("meta[property='twitter:image'], meta[property='og:image']").map do |element|
+    urls = parse(file)
+  rescue Down::Error => exception
+    Sidekiq.logger.info "PageImages: exception=#{exception.inspect} url=#{@url}"
+    urls
+  ensure
+    cache.save({checked: true, urls: urls})
+    cache.has_meta!(!urls.empty?)
+  end
+
+  def parse(file)
+    Nokogiri.HTML5(file.read).search("meta[property='twitter:image'], meta[property='og:image']").map do |element|
       url = element["content"]&.strip
       next if url.nil?
       next if url == ""
       Addressable::URI.join(parsed_url, url)
     end.compact
-    cache.save_urls(urls)
-    urls
-  rescue Down::Error => exception
-    Sidekiq.logger.info "PageImages: exception=#{exception.inspect} url=#{@url}"
-    []
   end
 
   def needs_download?
-    !cache.page_checked? || cache.site_has_meta?
+    !cache.checked? && cache.has_meta?
   end
 
   def cache
@@ -47,6 +53,4 @@ class MetaImages
       parsed
     end
   end
-
-
 end
