@@ -4,13 +4,17 @@ class FindImage
 
   def perform(public_id, urls, entry_url = nil)
     if entry_url
-      page_urls = PageImages.find_urls(entry_url)
+      page_urls = MetaImages.find_urls(entry_url)
       urls = page_urls.concat(urls)
     end
 
     while url = urls.shift
-      download = Download.download!(url)
-      if download.valid?
+      image_cache = ImageCache.copy(url, public_id)
+      download = Download.new(url, public_id)
+      if image_cache.copied?
+        raise "todo: send back to feedbin"
+        break
+      elsif download.download!(url) && download.valid?
         ProcessImage.perform_async(public_id, download.path, url, urls)
         break
       end
