@@ -21,6 +21,8 @@ class ImageTest < Minitest::Test
     image = Image.new(file, target_width: 542, target_height: 304)
     cropped_path = image.smart_crop!
     assert cropped_path.include?(".jpg")
+
+    pp Digest::SHA1.hexdigest(File.read(cropped_path))
     FileUtils.rm cropped_path
   end
 end
