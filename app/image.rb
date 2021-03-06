@@ -41,16 +41,24 @@ class Image
     if resized.width > @target_width
       axis = "x"
       contraint = @target_width
+      max = resized.width - @target_width
     else
       axis = "y"
       contraint = @target_height
+      max = resized.height - @target_height
     end
 
     if center = average_face_position(axis, pipeline.call)
       point = {"x" => 0, "y" => 0}
       point[axis] = center - contraint / 2
-      point[axis] = 0 if point[axis] < 0
-      image = pipeline.crop(point["x"].to_i, point["y"].to_i, @target_width, @target_height)
+
+      if point[axis] < 0
+        point[axis] = 0
+      elsif point[axis] > max
+        point[axis] = max
+      end
+
+      image = pipeline.crop(point["x"], point["y"], @target_width, @target_height)
     else
       image = pipeline.resize_to_fill(@target_width, @target_height, crop: :attention)
     end
