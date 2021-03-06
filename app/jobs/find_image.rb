@@ -9,11 +9,11 @@ class FindImage
     end
 
     while url = urls.shift
-      image_cache = ImageCache.copy(url, public_id)
-      if image_cache.copied?
+      download_cache = DownloadCache.copy(url, public_id)
+      if download_cache.copied?
         raise "todo: send back to feedbin"
         break
-      elsif image_cache.download?
+      elsif download_cache.download?
         download = Download.download!(url, public_id)
         if download.valid?
           ProcessImage.perform_async(public_id, download.persist!, url, urls)

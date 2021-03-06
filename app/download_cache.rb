@@ -1,4 +1,4 @@
-class ImageCache
+class DownloadCache
   include Helpers
 
   attr_reader :copied_url

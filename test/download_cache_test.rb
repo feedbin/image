@@ -1,5 +1,5 @@
 require_relative "test_helper"
-class ImageCacheTest < Minitest::Test
+class DownloadCacheTest < Minitest::Test
   def setup
     flush
   end
@@ -9,10 +9,10 @@ class ImageCacheTest < Minitest::Test
     processed_url = "http://s3.com/example/example.jpg"
     public_id = SecureRandom.hex
 
-    cache = ImageCache.new(image_url, public_id)
+    cache = DownloadCache.new(image_url, public_id)
     cache.save(processed_url)
 
-    cache = ImageCache.new(image_url, public_id)
+    cache = DownloadCache.new(image_url, public_id)
     assert_equal(processed_url, cache.processed_url)
   end
 
@@ -31,7 +31,7 @@ class ImageCacheTest < Minitest::Test
 
     stub_request(:put, /.*\.s3\.amazonaws\.com/).to_return(status: 200, body: body)
 
-    cache = ImageCache.new(image_url, public_id)
+    cache = DownloadCache.new(image_url, public_id)
     refute cache.copied?
 
     cache.save(processed_url)
@@ -49,7 +49,7 @@ class ImageCacheTest < Minitest::Test
 
     stub_request(:put, s3_host).to_return(status: 404)
 
-    cache = ImageCache.new(image_url, public_id)
+    cache = DownloadCache.new(image_url, public_id)
     cache.save(processed_url)
     cache.copy
     refute cache.copied?
