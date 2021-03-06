@@ -22,6 +22,20 @@ module Helpers
       end
     end
   end
+  
+  def send_to_feedbin(public_id, original_url, processed_url)
+    image = {      
+      "original_url"  => original_url,
+      "processed_url" => processed_url,
+      "width"         => 542,
+      "height"        => 304,
+    }
+    Sidekiq::Client.push(
+      'args'  => [public_id, image],
+      'class' => 'EntryImage',
+      'queue' => 'default'
+    )
+  end
 
   def image_name(public_id)
     File.join(public_id[0..6], "#{public_id}.jpg")

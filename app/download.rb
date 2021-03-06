@@ -36,7 +36,7 @@ class Download
   end
 
   def valid?
-    valid = @file && @file.content_type.start_with?("image")
+    valid = @file && @file.content_type&.start_with?("image")
     valid = valid && @file.size >= @minimum_size unless @minimum_size.nil?
     valid
   end

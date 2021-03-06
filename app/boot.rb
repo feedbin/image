@@ -45,3 +45,7 @@ require "app/meta_images_cache"
 require "app/download_cache"
 require "app/download"
 require "app/image"
+
+require "app/jobs/find_image"
+require "app/jobs/process_image"
+require "app/jobs/upload_image"

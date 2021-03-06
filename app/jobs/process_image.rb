@@ -3,7 +3,8 @@ class ProcessImage
   sidekiq_options queue: "image_serial_#{Socket.gethostname}", retry: false
 
   def perform(public_id, image_path, image_url, all_urls)
-    image = Image.new(path, target_width: 542, target_height: 304)
+    Sidekiq.logger.info "ProcessImage: public_id=#{public_id} url=#{image_url}"
+    image = Image.new(image_path, target_width: 542, target_height: 304)
     if image.valid?
       path = image.smart_crop!
       UploadImage.perform_async(public_id, path, image_url)

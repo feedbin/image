@@ -19,7 +19,7 @@ end
 
 require "sidekiq/testing"
 Sidekiq::Testing.fake!
-Sidekiq.logger.level = Logger::WARN
+Sidekiq.logger.level = Logger::INFO
 
 require_relative "../app/boot"
 
@@ -39,4 +39,11 @@ def stub_request_file(file, url, options = {})
   defaults = {body: File.new(file), status: 200}
   stub_request(:get, url)
     .to_return(defaults.merge(options))
+end
+
+class EntryImage
+  include Sidekiq::Worker
+  def perform(*args)
+    pp args
+  end
 end
