@@ -16,7 +16,7 @@ class DownloadCache
   end
 
   def copy
-    @copied_url = copy_image(processed_url) unless processed_url.nil?
+    @copied_url = copy_image(processed_url, @public_id) unless processed_url.nil?
   end
 
   def copied?
