@@ -1,5 +1,4 @@
 class Download
-
   attr_reader :path
 
   def initialize(url, minimum_size: 20_000)
@@ -37,7 +36,7 @@ class Download
 
   def valid?
     valid = @file && @file.content_type&.start_with?("image")
-    valid = valid && @file.size >= @minimum_size unless @minimum_size.nil?
+    valid &&= @file.size >= @minimum_size unless @minimum_size.nil?
     valid
   end
 end

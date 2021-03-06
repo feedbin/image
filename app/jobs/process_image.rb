@@ -21,4 +21,3 @@ class ProcessImageCritical
     ProcessImage.new.perform(*args)
   end
 end
-

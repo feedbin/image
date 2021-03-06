@@ -41,17 +41,17 @@ class Cache
   end
 
   def delete(*keys)
-    Sidekiq.redis {|redis| redis.unlink(*keys) }
+    Sidekiq.redis { |redis| redis.unlink(*keys) }
   end
 
   def increment(key, options: {})
-    count = Sidekiq.redis {|redis| redis.incr(key) }
+    count = Sidekiq.redis { |redis| redis.incr(key) }
     write_key_expiry(key, options)
     count
   end
 
   def count(key)
-    Sidekiq.redis {|redis| redis.get(key) }.to_i
+    Sidekiq.redis { |redis| redis.get(key) }.to_i
   end
 
   def write_key_expiry(key, options)

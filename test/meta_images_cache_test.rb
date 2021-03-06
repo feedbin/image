@@ -6,14 +6,14 @@ class MetaImagesCacheTest < Minitest::Test
 
   def test_should_save_urls
     urls = ["one", "two"]
-    cache = MetaImagesCache.new(Addressable::URI.parse('http://example.com/article'))
+    cache = MetaImagesCache.new(Addressable::URI.parse("http://example.com/article"))
     cache.save({checked: true, urls: urls})
 
     assert_equal(urls, cache.urls)
   end
 
   def test_should_save_checked_status
-    cache = MetaImagesCache.new(Addressable::URI.parse('http://example.com/article'))
+    cache = MetaImagesCache.new(Addressable::URI.parse("http://example.com/article"))
     refute cache.checked?
 
     cache.save({checked: true, urls: []})
@@ -21,7 +21,7 @@ class MetaImagesCacheTest < Minitest::Test
   end
 
   def test_should_save_meta_presence
-    cache = MetaImagesCache.new(Addressable::URI.parse('http://example.com/article'))
+    cache = MetaImagesCache.new(Addressable::URI.parse("http://example.com/article"))
     assert cache.has_meta?
 
     cache.has_meta!(false)

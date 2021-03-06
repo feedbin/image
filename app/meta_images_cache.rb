@@ -44,5 +44,4 @@ class MetaImagesCache
   def url_cache_key
     "image_url_#{Digest::SHA1.hexdigest(@url)}"
   end
-
 end

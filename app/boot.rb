@@ -2,7 +2,6 @@ $LOAD_PATH.unshift File.expand_path(File.dirname(File.dirname(__FILE__)))
 
 $stdout.sync = true
 
-
 require "bundler/setup"
 require "dotenv"
 Dotenv.load

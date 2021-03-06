@@ -1,6 +1,5 @@
 require_relative "test_helper"
 class ImageTest < Minitest::Test
-
   def test_should_get_image_size
     file = File.expand_path("support/www/image.jpeg", __dir__)
     image = Image.new(file, target_width: 542, target_height: 304)

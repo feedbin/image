@@ -46,7 +46,7 @@ class MetaImagesTest < Minitest::Test
   end
 
   def test_should_not_download_from_site_with_no_meta
-    url = Addressable::URI.parse('http://example.com/article')
+    url = Addressable::URI.parse("http://example.com/article")
     cache = MetaImagesCache.new(url)
     cache.has_meta!(false)
 

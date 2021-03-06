@@ -39,4 +39,3 @@ class FindImageCritical
     FindImage.new.perform(*args)
   end
 end
-

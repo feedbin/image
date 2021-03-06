@@ -3,7 +3,7 @@ module Helpers
     url = URI.parse(url)
     source_object_name = url.path[1..-1]
     S3_POOL.with do |connection|
-      connection.copy_object(ENV['AWS_S3_BUCKET'], source_object_name, ENV['AWS_S3_BUCKET'], image_name(public_id), options)
+      connection.copy_object(ENV["AWS_S3_BUCKET"], source_object_name, ENV["AWS_S3_BUCKET"], image_name(public_id), options)
     end
     final_url = url.path = "/#{image_name(public_id)}"
     url.to_s
@@ -14,7 +14,7 @@ module Helpers
   def upload(path, public_id)
     S3_POOL.with do |connection|
       File.open(path) do |file|
-        response = connection.put_object(ENV['AWS_S3_BUCKET'], image_name(public_id), file, options)
+        response = connection.put_object(ENV["AWS_S3_BUCKET"], image_name(public_id), file, options)
         URI::HTTPS.build(
           host: response.data[:host],
           path: response.data[:path]
@@ -22,18 +22,18 @@ module Helpers
       end
     end
   end
-  
+
   def send_to_feedbin(public_id, original_url, processed_url)
-    image = {      
-      "original_url"  => original_url,
+    image = {
+      "original_url" => original_url,
       "processed_url" => processed_url,
-      "width"         => 542,
-      "height"        => 304,
+      "width" => 542,
+      "height" => 304
     }
     Sidekiq::Client.push(
-      'args'  => [public_id, image],
-      'class' => 'EntryImage',
-      'queue' => 'default'
+      "args" => [public_id, image],
+      "class" => "EntryImage",
+      "queue" => "default"
     )
   end
 
@@ -49,5 +49,4 @@ module Helpers
       "x-amz-acl" => "public-read"
     }
   end
-
 end

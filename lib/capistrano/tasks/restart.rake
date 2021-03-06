@@ -1,5 +1,5 @@
 namespace :deploy do
-  desc 'Restart processes'
+  desc "Restart processes"
   task :restart do
     # on roles :all do
     #   begin

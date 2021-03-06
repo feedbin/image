@@ -11,6 +11,8 @@ group :test do
   gem "webmock"
 end
 
+gem "standard", group: [:development, :test]
+
 gem "bundler"
 gem "rake"
 
