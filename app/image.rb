@@ -8,7 +8,7 @@ class Image
   end
 
   def valid?
-    source.avg && height >= (@target_height + 2) && width >= (@target_width + 2)
+    source.avg && width >= @target_width && height >= @target_height
   rescue ::Vips::Error
     false
   end
@@ -25,17 +25,21 @@ class Image
     @source ||= Vips::Image.new_from_file(@file)
   end
 
-  def smart_crop!
-    pipeline = ImageProcessing::Vips
+  def pipeline(resized_width, resized_height)
+    ImageProcessing::Vips
       .source(@file)
-      .resize_to_fill(resized.width, resized.height)
+      .resize_to_fill(resized_width, resized_height)
       .convert("jpg")
       .saver(interlace: true, strip: true, quality: 80)
+  end
 
-    if resized.width == @target_width && resized.height == @target_height
-      pipeline.call(destination: persisted_path)
+  def smart_crop!
+    if resize_too_small? || resize_just_right?
+      pipeline(@target_width, @target_height).call(destination: persisted_path)
       return persisted_path
     end
+
+    image = pipeline(resized.width, resized.height)
 
     if resized.width > @target_width
       axis = "x"
@@ -47,9 +51,9 @@ class Image
       max = resized.height - @target_height
     end
 
-    if center = average_face_position(axis, pipeline.call)
+    if center = average_face_position(axis, image.call)
       point = {"x" => 0, "y" => 0}
-      point[axis] = center - contraint / 2
+      point[axis] = (center.to_f - contraint.to_f / 2.0).floor
 
       if point[axis] < 0
         point[axis] = 0
@@ -57,9 +61,9 @@ class Image
         point[axis] = max
       end
 
-      image = pipeline.crop(point["x"], point["y"], @target_width, @target_height)
+      image = image.crop(point["x"], point["y"], @target_width, @target_height)
     else
-      image = pipeline.resize_to_fill(@target_width, @target_height, crop: :attention)
+      image = image.resize_to_fill(@target_width, @target_height, crop: :attention)
     end
 
     image.call(destination: persisted_path)
@@ -109,5 +113,13 @@ class Image
     @persisted_path ||= begin
       File.join(Dir.tmpdir, [SecureRandom.hex, ".jpg"].join)
     end
+  end
+
+  def resize_too_small?
+    resized.width < @target_width || resized.height < @target_height
+  end
+
+  def resize_just_right?
+    resized.width == @target_width && resized.height == @target_height
   end
 end
