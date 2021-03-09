@@ -15,15 +15,7 @@ class FindImageTest < Minitest::Test
     stub_request(:get, "http://example.com/image/og_image.jpg").to_return(status: 404)
     stub_request(:get, "http://example.com/image/twitter_image.jpg").to_return(status: 404)
 
-    body = <<~EOT
-      <?xml version="1.0" encoding="UTF-8"?>
-      <CopyObjectResult>
-         <ETag>string</ETag>
-         <LastModified>Tue, 02 Mar 2021 12:58:45 GMT</LastModified>
-      </CopyObjectResult>
-    EOT
-
-    stub_request(:put, /.*\.s3\.amazonaws\.com/).to_return(status: 200, body: body)
+    stub_request(:put, /.*\.s3\.amazonaws\.com/).to_return(status: 200, body: aws_copy_body)
 
     Sidekiq::Testing.inline! do
       FindImage.perform_async(SecureRandom.hex, urls, page_url)
@@ -49,5 +41,25 @@ class FindImageTest < Minitest::Test
 
     assert_requested :get, url
     refute_requested :get, image_url
+  end
+
+  def test_should_try_all_urls
+    urls = [
+      "http://example.com/image_1.jpg",
+      "http://example.com/image_2.jpg",
+      "http://example.com/image_3.jpg",
+    ]
+
+    urls.each do |url|
+      stub_request(:get, url).to_return(headers: {content_type: "image/jpg"}, body: ("lorem " * 3_500))
+    end
+
+    Sidekiq::Testing.inline! do
+      FindImage.perform_async(SecureRandom.hex, urls, nil)
+    end
+
+    assert_requested :get, urls[0]
+    assert_requested :get, urls[1]
+    assert_requested :get, urls[2]
   end
 end

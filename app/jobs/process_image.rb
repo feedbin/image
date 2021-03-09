@@ -9,7 +9,7 @@ class ProcessImage
       path = image.smart_crop!
       UploadImage.perform_async(public_id, path, image_url)
     else
-      FindImageCritical.perform_async(public_id, urls)
+      FindImageCritical.perform_async(public_id, all_urls)
     end
   end
 end

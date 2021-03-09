@@ -34,16 +34,28 @@ def flush
   end
 end
 
+def support_file(file_name)
+  File.join("test/support/www", file_name)
+end
+
 def stub_request_file(file, url, options = {})
-  file = File.join("test/support/www", file)
-  defaults = {body: File.new(file), status: 200}
+  defaults = {body: File.new(support_file(file)), status: 200}
   stub_request(:get, url)
     .to_return(defaults.merge(options))
+end
+
+def aws_copy_body
+  <<~EOT
+    <?xml version="1.0" encoding="UTF-8"?>
+    <CopyObjectResult>
+       <ETag>string</ETag>
+       <LastModified>Tue, 02 Mar 2021 12:58:45 GMT</LastModified>
+    </CopyObjectResult>
+  EOT
 end
 
 class EntryImage
   include Sidekiq::Worker
   def perform(*args)
-    pp args
   end
 end

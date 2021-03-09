@@ -21,15 +21,7 @@ class DownloadCacheTest < Minitest::Test
     processed_url = "http://s3.com/example/example.jpg"
     public_id = SecureRandom.hex
 
-    body = <<~EOT
-      <?xml version="1.0" encoding="UTF-8"?>
-      <CopyObjectResult>
-         <ETag>string</ETag>
-         <LastModified>Tue, 02 Mar 2021 12:58:45 GMT</LastModified>
-      </CopyObjectResult>
-    EOT
-
-    stub_request(:put, /.*\.s3\.amazonaws\.com/).to_return(status: 200, body: body)
+    stub_request(:put, /.*\.s3\.amazonaws\.com/).to_return(status: 200, body: aws_copy_body)
 
     cache = DownloadCache.new(image_url, public_id)
     refute cache.copied?
