@@ -8,16 +8,15 @@ class Download
   end
 
   def self.download!(url, **args)
-    instance = new(url, **args)
+    klass = find_download_provider(url)
+    instance = klass.new(url, **args)
     instance.download
     instance
   end
 
-  def download
-    @file = Down.download(@url, max_size: 10 * 1024 * 1024)
+  def download_file(url)
+    @file = Down.download(url, max_size: 10 * 1024 * 1024)
     @path = @file.path
-  rescue Down::Error => exception
-    Sidekiq.logger.info "Download failed: exception=#{exception.inspect} url=#{@url}"
   end
 
   def persist!
@@ -38,5 +37,34 @@ class Download
     valid = @file && @file.content_type&.start_with?("image")
     valid &&= @file.size >= @minimum_size unless @minimum_size.nil?
     valid
+  end
+
+  def provider_identifier
+    self.class.recognize_url?(@url)
+  end
+
+  def self.recognize_url?(src_url)
+    if supported_urls.find { |url| src_url =~ url }
+      Regexp.last_match[1]
+    else
+      false
+    end
+  end
+
+  def self.find_download_provider(url)
+    download_providers.detect { |klass| klass.recognize_url?(url) }
+  end
+
+  def self.download_providers
+    [
+      Download::Youtube,
+      Download::Instagram,
+      Download::Vimeo,
+      Download::Default
+    ]
+  end
+
+  def self.supported_urls
+    []
   end
 end
