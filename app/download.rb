@@ -8,7 +8,7 @@ class Download
   end
 
   def self.download!(url, **args)
-    klass = find_download_provider(url)
+    klass = find_download_provider(url) || Download::Default
     instance = klass.new(url, **args)
     instance.download
     instance
@@ -59,8 +59,7 @@ class Download
     [
       Download::Youtube,
       Download::Instagram,
-      Download::Vimeo,
-      Download::Default
+      Download::Vimeo
     ]
   end
 

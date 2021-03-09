@@ -4,13 +4,7 @@ class FindImage
   sidekiq_options queue: "image_parallel", retry: false
 
   def perform(public_id, urls, entry_url = nil)
-    if entry_url
-      page_urls = MetaImages.find_urls(entry_url)
-      urls = page_urls.concat(urls)
-      Sidekiq.logger.info "MetaImages: public_id=#{public_id} count=#{page_urls.length} url=#{entry_url}"
-    end
-
-    Sidekiq.logger.info "FindImage: public_id=#{public_id} count=#{urls.length}"
+    urls = combine_urls(public_id, urls, entry_url) if entry_url
 
     while url = urls.shift
       Sidekiq.logger.info "Candidate: public_id=#{public_id} url=#{url}"
@@ -29,6 +23,17 @@ class FindImage
         end
       end
     end
+  end
+
+  def combine_urls(public_id, urls, entry_url)
+    if Download.find_download_provider(entry_url)
+      page_urls = [entry_url]
+      Sidekiq.logger.info "Recognized URL: public_id=#{public_id} url=#{entry_url}"
+    else
+      page_urls = MetaImages.find_urls(entry_url)
+      Sidekiq.logger.info "MetaImages: public_id=#{public_id} count=#{page_urls.length} url=#{entry_url}"
+    end
+    page_urls.concat(urls)
   end
 end
 
