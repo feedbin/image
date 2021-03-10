@@ -16,7 +16,7 @@ class DownloadCache
   end
 
   def copy
-    @copied_url = copy_image(processed_url, @public_id) unless processed_url.nil?
+    @copied_url = copy_image(processed_url, @public_id) unless processed_url.nil? || processed_url == false
   end
 
   def copied?
@@ -28,7 +28,7 @@ class DownloadCache
   end
 
   def download?
-    !previously_attempted?
+    !previously_attempted? && processed_url != false
   end
 
   def previously_attempted?
@@ -37,7 +37,7 @@ class DownloadCache
 
   def save(url)
     @cache = {processed_url: url}
-    Cache.write(cache_key, @cache, options: {expires_in: 24 * 60 * 60 * 30})
+    Cache.write(cache_key, @cache, options: {expires_in: 7 * 24 * 60 * 60})
   end
 
   def cache

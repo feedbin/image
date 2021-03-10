@@ -19,8 +19,11 @@ class FindImage
           ProcessImage.perform_async(public_id, download.persist!, url, urls)
           break
         else
+          download_cache.save(false)
           Sidekiq.logger.info "Download invalid: public_id=#{public_id} url=#{url}"
         end
+      else
+        Sidekiq.logger.info "Skipping download: public_id=#{public_id} url=#{url}"
       end
     end
   end
@@ -31,8 +34,9 @@ class FindImage
       Sidekiq.logger.info "Recognized URL: public_id=#{public_id} url=#{entry_url}"
     else
       page_urls = MetaImages.find_urls(entry_url)
-      Sidekiq.logger.info "MetaImages: public_id=#{public_id} count=#{page_urls.length} url=#{entry_url}"
+      Sidekiq.logger.info "MetaImages: public_id=#{public_id} count=#{page_urls&.length} url=#{entry_url}"
     end
+    page_urls ||=[]
     page_urls.concat(urls)
   end
 end
