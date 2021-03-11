@@ -19,7 +19,7 @@ class ImageTest < Minitest::Test
   def test_should_crop
     file = File.expand_path("support/www/image.jpeg", __dir__)
     image = Image.new(file, target_width: 542, target_height: 304)
-    cropped_path = image.smart_crop!
+    cropped_path = image.smart_crop
     assert cropped_path.include?(".jpg")
     FileUtils.rm cropped_path
   end
@@ -27,7 +27,7 @@ class ImageTest < Minitest::Test
   def test_should_return_same_size_image
     file = File.expand_path("support/www/image.jpeg", __dir__)
     image = Image.new(file, target_width: 640, target_height: 828)
-    cropped_path = image.smart_crop!
+    cropped_path = image.smart_crop
     assert cropped_path.include?(".jpg")
   end
 end

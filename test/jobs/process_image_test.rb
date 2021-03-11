@@ -10,7 +10,7 @@ class ProcessImageTest < Minitest::Test
     url = "http://example.com/image.jpg"
 
     assert_equal 0, UploadImage.jobs.size
-    ProcessImage.new.perform(public_id, path, url, [])
+    ProcessImage.new.perform(public_id, "primary", path, url, [])
     assert_equal 1, UploadImage.jobs.size
 
     assert_equal(public_id, UploadImage.jobs.first["args"].first)
@@ -24,9 +24,9 @@ class ProcessImageTest < Minitest::Test
     all_urls = ["http://example.com/image_2.jpg", "http://example.com/image_3.jpg"]
 
     assert_equal 0, FindImageCritical.jobs.size
-    ProcessImage.new.perform(public_id, path, url, all_urls)
+    ProcessImage.new.perform(public_id, "primary", path, url, all_urls)
     assert_equal 1, FindImageCritical.jobs.size
 
-    assert_equal([public_id, all_urls], FindImageCritical.jobs.first["args"])
+    assert_equal([public_id, "primary", all_urls], FindImageCritical.jobs.first["args"])
   end
 end

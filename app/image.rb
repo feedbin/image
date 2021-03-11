@@ -33,11 +33,13 @@ class Image
       .saver(interlace: true, strip: true, quality: 80)
   end
 
-  def smart_crop!
-    if resize_too_small? || resize_just_right?
-      pipeline(@target_width, @target_height).call(destination: persisted_path)
-      return persisted_path
-    end
+  def fill_crop
+    pipeline(@target_width, @target_height).call(destination: persisted_path)
+    persisted_path
+  end
+
+  def smart_crop
+    return fill_crop if resize_too_small? || resize_just_right?
 
     image = pipeline(resized.width, resized.height)
 

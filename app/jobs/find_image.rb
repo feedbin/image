@@ -3,41 +3,52 @@ class FindImage
   include Helpers
   sidekiq_options queue: "image_parallel", retry: false
 
-  def perform(public_id, urls, entry_url = nil)
-    urls = combine_urls(public_id, urls, entry_url) if entry_url
+  def perform(public_id, preset_name, candidate_urls, entry_url = nil)
+    @public_id = public_id
+    @preset_name = preset_name
+    @entry_url = entry_url
+    @candidate_urls = combine_urls(candidate_urls)
 
-    while url = urls.shift
-      Sidekiq.logger.info "Candidate: public_id=#{public_id} url=#{url}"
-      download_cache = DownloadCache.copy(url, public_id)
+    while original_url = @candidate_urls.shift
+      Sidekiq.logger.info "Candidate: public_id=#{@public_id} original_url=#{original_url}"
+      download_cache = DownloadCache.copy(original_url, public_id: @public_id, preset_name: @preset_name)
       if download_cache.copied?
-        send_to_feedbin(public_id, url, download_cache.copied_url)
-        Sidekiq.logger.info "Copied image: public_id=#{public_id} url=#{url} processed_url=#{download_cache.copied_url}"
+        send_to_feedbin(original_url: original_url, storage_url: download_cache.storage_url)
+        Sidekiq.logger.info "Copied image: public_id=#{@public_id} original_url=#{original_url} storage_url=#{download_cache.storage_url}"
         break
       elsif download_cache.download?
-        download = Download.download!(url)
-        if download.valid?
-          ProcessImage.perform_async(public_id, download.persist!, url, urls)
-          break
-        else
-          download_cache.save(false)
-          Sidekiq.logger.info "Download invalid: public_id=#{public_id} url=#{url}"
-        end
+        break if download_image(original_url, download_cache)
       else
-        Sidekiq.logger.info "Skipping download: public_id=#{public_id} url=#{url}"
+        Sidekiq.logger.info "Skipping download: public_id=#{@public_id} original_url=#{@original_url}"
       end
     end
   end
 
-  def combine_urls(public_id, urls, entry_url)
-    if Download.find_download_provider(entry_url)
-      page_urls = [entry_url]
-      Sidekiq.logger.info "Recognized URL: public_id=#{public_id} url=#{entry_url}"
+  def download_image(original_url, download_cache)
+    found = false
+    download = Download.download!(original_url, minimum_size: preset.minimum_size)
+    if download.valid?
+      ProcessImage.perform_async(@public_id, @preset_name, download.persist!, original_url, @candidate_urls)
+      found = true
     else
-      page_urls = MetaImages.find_urls(entry_url)
-      Sidekiq.logger.info "MetaImages: public_id=#{public_id} count=#{page_urls&.length} url=#{entry_url}"
+      download_cache.save(false)
+      Sidekiq.logger.info "Download invalid: public_id=#{@public_id} original_url=#{@original_url}"
     end
-    page_urls ||=[]
-    page_urls.concat(urls)
+    found
+  end
+
+  def combine_urls(candidate_urls)
+    return candidate_urls unless @entry_url
+
+    if Download.find_download_provider(@entry_url)
+      page_urls = [@entry_url]
+      Sidekiq.logger.info "Recognized URL: public_id=#{@public_id} entry_url=#{@entry_url}"
+    else
+      page_urls = MetaImages.find_urls(@entry_url)
+      Sidekiq.logger.info "MetaImages: public_id=#{@public_id} count=#{page_urls&.length} entry_url=#{@entry_url}"
+    end
+    page_urls ||= []
+    page_urls.concat(candidate_urls)
   end
 end
 

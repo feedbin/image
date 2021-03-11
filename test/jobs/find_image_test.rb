@@ -18,14 +18,14 @@ class FindImageTest < Minitest::Test
     stub_request(:put, /.*\.s3\.amazonaws\.com/).to_return(status: 200, body: aws_copy_body)
 
     Sidekiq::Testing.inline! do
-      FindImage.perform_async(SecureRandom.hex, urls, page_url)
+      FindImage.perform_async(SecureRandom.hex, "primary", urls, page_url)
     end
 
     assert_requested :get, "http://example.com/image/og_image.jpg"
     assert_requested :get, "http://example.com/image/twitter_image.jpg"
 
     assert_equal 0, EntryImage.jobs.size
-    FindImage.new.perform(SecureRandom.hex, urls, nil)
+    FindImage.new.perform(SecureRandom.hex, "primary", urls, nil)
     assert_equal 1, EntryImage.jobs.size
   end
 
@@ -36,7 +36,7 @@ class FindImageTest < Minitest::Test
     stub_request(:get, url).to_return(headers: {content_type: "image/jpg"}, body: ("lorem " * 3_500))
 
     assert_equal 0, ProcessImage.jobs.size
-    FindImage.new.perform(SecureRandom.hex, [image_url], "https://www.youtube.com/watch?v=id")
+    FindImage.new.perform(SecureRandom.hex, "primary", [image_url], "https://www.youtube.com/watch?v=id")
     assert_equal 1, ProcessImage.jobs.size
 
     assert_requested :get, url
@@ -55,7 +55,7 @@ class FindImageTest < Minitest::Test
     end
 
     Sidekiq::Testing.inline! do
-      FindImage.perform_async(SecureRandom.hex, urls, nil)
+      FindImage.perform_async(SecureRandom.hex, "primary", urls, nil)
     end
 
     assert_requested :get, urls[0]

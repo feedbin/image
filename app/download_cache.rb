@@ -1,34 +1,35 @@
 class DownloadCache
   include Helpers
 
-  attr_reader :copied_url
+  attr_reader :storage_url
 
-  def initialize(url, public_id)
+  def initialize(url, public_id:, preset_name:)
     @url = url
     @public_id = public_id
-    @copied_url = nil
+    @preset_name = preset_name
+    @storage_url = nil
   end
 
-  def self.copy(url, public_id)
-    instance = new(url, public_id)
+  def self.copy(url, **args)
+    instance = new(url, **args)
     instance.copy
     instance
   end
 
   def copy
-    @copied_url = copy_image(processed_url, @public_id) unless processed_url.nil? || processed_url == false
+    @storage_url = copy_image unless storage_url.nil? || storage_url == false
   end
 
   def copied?
-    !!@copied_url
+    !!@storage_url
   end
 
-  def processed_url
-    cache[:processed_url]
+  def storage_url
+    @storage_url ||= cache[:storage_url]
   end
 
   def download?
-    !previously_attempted? && processed_url != false
+    !previously_attempted? && storage_url != false
   end
 
   def previously_attempted?
@@ -36,7 +37,7 @@ class DownloadCache
   end
 
   def save(url)
-    @cache = {processed_url: url}
+    @cache = {storage_url: url}
     Cache.write(cache_key, @cache, options: {expires_in: 7 * 24 * 60 * 60})
   end
 
@@ -47,6 +48,18 @@ class DownloadCache
   end
 
   def cache_key
-    "image_processed_#{Digest::SHA1.hexdigest(@url)}"
+    "image_processed_#{@preset_name}_#{Digest::SHA1.hexdigest(@url)}"
+  end
+
+  def copy_image
+    url = URI.parse(storage_url)
+    source_object_name = url.path[1..-1]
+    S3_POOL.with do |connection|
+      connection.copy_object(ENV["AWS_S3_BUCKET"], source_object_name, ENV["AWS_S3_BUCKET"], image_name, storage_options)
+    end
+    final_url = url.path = "/#{image_name}"
+    url.to_s
+  rescue Excon::Error::NotFound
+    false
   end
 end
