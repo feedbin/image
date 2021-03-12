@@ -90,8 +90,6 @@ class Image
   end
 
   def average_face_position(axis, file)
-    return nil
-
     params = {
       pigo: Shellwords.escape(PIGO),
       image: Shellwords.escape(file.path),
