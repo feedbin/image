@@ -1,3 +1,7 @@
+Vips::cache_set_max(0)
+Vips::cache_set_max_files(0)
+Vips::cache_set_max_mem(0)
+
 pigo_name = "pigo_#{Etc.uname[:sysname].downcase}_#{Etc.uname[:machine]}"
 CASCADE = File.expand_path("cascade/facefinder", __dir__)
 PIGO = File.expand_path("../bin/#{pigo_name}", __dir__)
