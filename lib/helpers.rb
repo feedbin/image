@@ -4,16 +4,22 @@ module Helpers
   end
 
   def send_to_feedbin(original_url:, storage_url:)
-    Sidekiq::Client.push(
-      "args"  => [@public_id, {
-        "original_url"  => original_url,
-        "processed_url" => storage_url,
-        "width"         => preset.width,
-        "height"        => preset.height
-      }],
-      "class" => preset.job_class,
-      "queue" => "default"
-    )
+    # Sidekiq::Client.push(
+    #   "args"  => [@public_id, {
+    #     "original_url"  => original_url,
+    #     "processed_url" => storage_url,
+    #     "width"         => preset.width,
+    #     "height"        => preset.height
+    #   }],
+    #   "class" => preset.job_class,
+    #   "queue" => "default"
+    # )
+    pp([@public_id, {
+      "original_url"  => original_url,
+      "processed_url" => storage_url,
+      "width"         => preset.width,
+      "height"        => preset.height
+    }])
   end
 
   def image_name
