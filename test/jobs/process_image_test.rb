@@ -6,9 +6,7 @@ class ProcessImageTest < Minitest::Test
 
   def test_should_enqueue_upload
     public_id = SecureRandom.hex
-    tempfile = Tempfile.new
-    path = tempfile.path
-    FileUtils.cp support_file("image.jpeg"), path
+    path = support_file("image.jpeg")
     url = "http://example.com/image.jpg"
 
     assert_equal 0, UploadImage.jobs.size

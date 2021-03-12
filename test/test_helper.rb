@@ -35,7 +35,9 @@ def flush
 end
 
 def support_file(file_name)
-  File.join("test/support/www", file_name)
+  path = File.join Dir.tmpdir, SecureRandom.hex
+  FileUtils.cp File.join("test/support/www", file_name), path
+  path
 end
 
 def stub_request_file(file, url, options = {})
