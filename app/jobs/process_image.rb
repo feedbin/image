@@ -11,6 +11,7 @@ class ProcessImage
       path = image.send(preset.crop)
       UploadImage.perform_async(public_id, @preset_name, path, original_url)
     else
+      File.unlink(image_path) rescue Errno::ENOENT
       FindImageCritical.perform_async(public_id, @preset_name, candidate_urls)
     end
   end

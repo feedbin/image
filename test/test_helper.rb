@@ -6,7 +6,7 @@ unless ENV["CI"]
   socket.bind(Addrinfo.tcp("127.0.0.1", 0))
   port = socket.local_address.ip_port
   socket.close
-  
+
   port = 7775
 
   ENV["REDIS_URL"] = "redis://localhost:%d" % port
