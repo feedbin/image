@@ -12,7 +12,7 @@ class ProcessImage
       UploadImage.perform_async(public_id, @preset_name, path, original_url)
     else
       File.unlink(image_path) rescue Errno::ENOENT
-      FindImageCritical.perform_async(public_id, @preset_name, candidate_urls)
+      FindImageCritical.perform_async(public_id, @preset_name, candidate_urls) unless candidate_urls.empty?
     end
   end
 end
