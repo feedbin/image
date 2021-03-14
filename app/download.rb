@@ -29,7 +29,7 @@ class Download
 
   def persisted_path
     @persisted_path ||= begin
-      File.join(Dir.tmpdir, [SecureRandom.hex, File.extname(@file)].join)
+      File.join(Dir.tmpdir, ["image_original_", SecureRandom.hex, File.extname(@file)].join)
     end
   end
 

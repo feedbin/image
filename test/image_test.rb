@@ -10,7 +10,7 @@ class ImageTest < Minitest::Test
   end
 
   def test_should_get_face_location
-    file = File.expand_path("support/www/image.jpeg", __dir__)
+    file = support_file("image.jpeg")
     image = Image.new(file, target_width: 542, target_height: 304)
 
     assert_equal(455, image.average_face_position("y", File.new(file)))

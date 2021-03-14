@@ -30,7 +30,7 @@ class Image
       .source(@file)
       .resize_to_fill(resized_width, resized_height)
       .convert("jpg")
-      .saver(interlace: true, strip: true, quality: 80)
+      .saver(interlace: true, strip: true, quality: 90)
   end
 
   def fill_crop
@@ -97,6 +97,7 @@ class Image
     }
     command = "%<pigo>s -in %<image>s -out empty -cf %<cascade>s -scale 1.2 -json -"
     out, _, status = Open3.capture3(command % params)
+    File.unlink(file) rescue Errno::ENOENT
 
     faces = if status.success?
       JSON.load(out)
@@ -113,7 +114,7 @@ class Image
 
   def persisted_path
     @persisted_path ||= begin
-      File.join(Dir.tmpdir, [SecureRandom.hex, ".jpg"].join)
+      File.join(Dir.tmpdir, ["image_processed_", SecureRandom.hex, ".jpg"].join)
     end
   end
 
