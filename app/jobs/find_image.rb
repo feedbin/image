@@ -31,6 +31,7 @@ class FindImage
       ProcessImage.perform_async(@public_id, @preset_name, download.persist!, original_url, @candidate_urls)
       found = true
     else
+      download.delete!
       download_cache.save(false)
       Sidekiq.logger.info "Download invalid: public_id=#{@public_id} original_url=#{@original_url}"
     end

@@ -21,15 +21,22 @@ class Download
 
   def persist!
     unless @path == persisted_path
-      FileUtils.cp @path, persisted_path
+      FileUtils.mv @path, persisted_path
       @path = persisted_path
     end
     persisted_path
   end
 
+  def delete!
+    @file.respond_to?(:close) && @file.close
+    @file.respond_to?(:unlink) && @file.unlink
+    @path && File.unlink(@path)
+  rescue Errno::ENOENT
+  end
+
   def persisted_path
     @persisted_path ||= begin
-      File.join(Dir.tmpdir, ["image_original_", SecureRandom.hex, File.extname(@file)].join)
+      File.join(Dir.tmpdir, ["image_original_", SecureRandom.hex].join)
     end
   end
 
