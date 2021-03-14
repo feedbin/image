@@ -27,10 +27,10 @@ class Image
 
   def pipeline(resized_width, resized_height)
     ImageProcessing::Vips
-      .source(@file)
+      .source(source)
       .resize_to_fill(resized_width, resized_height)
       .convert("jpg")
-      .saver(interlace: true, strip: true, quality: 90)
+      .saver(strip: true, quality: 90)
   end
 
   def fill_crop
