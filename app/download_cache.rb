@@ -54,9 +54,7 @@ class DownloadCache
   def copy_image
     url = URI.parse(storage_url)
     source_object_name = url.path[1..-1]
-    S3_POOL.with do |connection|
-      connection.copy_object(ENV["AWS_S3_BUCKET"], source_object_name, ENV["AWS_S3_BUCKET"], image_name, storage_options)
-    end
+    Fog::Storage.new(STORAGE_OPTIONS).copy_object(ENV["AWS_S3_BUCKET"], source_object_name, ENV["AWS_S3_BUCKET"], image_name, storage_options)
     final_url = url.path = "/#{image_name}"
     url.to_s
   rescue Excon::Error::NotFound

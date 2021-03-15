@@ -35,7 +35,7 @@ require "lib/redis"
 require "lib/librato"
 require "lib/worker_stat"
 require "lib/sidekiq"
-require "lib/s3_pool"
+require "lib/storage"
 require "lib/helpers"
 
 require "app/cache"

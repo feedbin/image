@@ -18,14 +18,12 @@ class UploadImage
   end
 
   def upload
-    S3_POOL.with do |connection|
-      File.open(@image_path) do |file|
-        response = connection.put_object(ENV["AWS_S3_BUCKET"], image_name, file, storage_options)
-        URI::HTTPS.build(
-          host: response.data[:host],
-          path: response.data[:path]
-        ).to_s
-      end
+    File.open(@image_path) do |file|
+      response = Fog::Storage.new(STORAGE_OPTIONS).put_object(ENV["AWS_S3_BUCKET"], image_name, file, storage_options)
+      URI::HTTPS.build(
+        host: response.data[:host],
+        path: response.data[:path]
+      ).to_s
     end
   end
 
