@@ -36,6 +36,10 @@ class FindImage
       Sidekiq.logger.info "Download invalid: public_id=#{@public_id} original_url=#{@original_url}"
     end
     found
+  rescue => exception
+    download.delete!
+    Sidekiq.logger.info "Download failed: exception=#{exception.inspect} original_url=#{@original_url}"
+    false
   end
 
   def combine_urls(candidate_urls)
